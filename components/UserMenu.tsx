@@ -57,9 +57,10 @@ export default function UserMenu() {
           </button>
           <button
             onClick={() => openAuthModal('signup')}
-            className="px-2.5 sm:px-4 py-1.5 sm:py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-xs sm:text-sm whitespace-nowrap"
+            className="px-2 sm:px-4 py-1.5 sm:py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-[11px] sm:text-sm whitespace-nowrap"
           >
-            Registrarse
+            <span className="hidden xs:inline">Registrarse</span>
+            <span className="xs:hidden">Entrar</span>
           </button>
         </div>
         <AuthModal
