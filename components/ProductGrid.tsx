@@ -1,6 +1,8 @@
 'use client'
 
 import ProductCard from './ProductCard'
+import { useSearch } from '@/context/SearchContext'
+import { useMemo } from 'react'
 
 const products = [
   {
@@ -87,12 +89,32 @@ const products = [
 ]
 
 export default function ProductGrid() {
+  const { searchTerm } = useSearch()
+
+  const filteredProducts = useMemo(() => {
+    if (!searchTerm.trim()) return products
+
+    const term = searchTerm.toLowerCase()
+    return products.filter(
+      (product) =>
+        product.name.toLowerCase().includes(term) ||
+        product.category.toLowerCase().includes(term)
+    )
+  }, [searchTerm])
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">
-          Obras Destacadas
-        </h2>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">
+            {searchTerm ? `Resultados para "${searchTerm}"` : 'Obras Destacadas'}
+          </h2>
+          {searchTerm && (
+            <p className="text-sm text-gray-500 mt-1">
+              {filteredProducts.length} {filteredProducts.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}
+            </p>
+          )}
+        </div>
         <select className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900">
           <option>Más Recientes</option>
           <option>Precio: Bajo a Alto</option>
@@ -101,11 +123,23 @@ export default function ProductGrid() {
         </select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product) => (
-          <ProductCard key={product.id} {...product} />
-        ))}
-      </div>
+      {filteredProducts.length === 0 ? (
+        <div className="text-center py-16">
+          <div className="text-6xl mb-4">🔍</div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">
+            No se encontraron resultados
+          </h3>
+          <p className="text-gray-600">
+            Intenta con otros términos de búsqueda
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredProducts.map((product) => (
+            <ProductCard key={product.id} {...product} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

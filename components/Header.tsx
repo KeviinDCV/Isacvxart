@@ -1,11 +1,12 @@
 'use client'
 
-import { Search, ShoppingCart, User } from 'lucide-react'
+import { ShoppingCart, User } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { useCart } from '@/context/CartContext'
 import CartDropdown from './CartDropdown'
+import SearchPopup from './SearchPopup'
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -38,7 +39,7 @@ export default function Header() {
           {/* Logo - Izquierda */}
           <Link href="/" className="flex items-center gap-2 flex-1">
             <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">❤</span>
+              <span className="text-white font-bold text-xl">♰</span>
             </div>
             <span className="text-xl font-bold text-gray-900">Isacvxart</span>
           </Link>
@@ -69,12 +70,7 @@ export default function Header() {
 
           {/* Acciones - Derecha */}
           <div className="flex items-center gap-4 flex-1 justify-end">
-            <button 
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              aria-label="Buscar"
-            >
-              <Search className="w-5 h-5 text-gray-600" />
-            </button>
+            <SearchPopup />
             <div className="relative">
               <button 
                 onClick={() => setIsCartOpen(!isCartOpen)}
