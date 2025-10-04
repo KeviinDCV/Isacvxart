@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import { useCart } from '@/context/CartContext'
 import CartDropdown from './CartDropdown'
 import SearchPopup from './SearchPopup'
+import UserMenu from './UserMenu'
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -86,12 +87,7 @@ export default function Header() {
               </button>
               <CartDropdown isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
             </div>
-            <button 
-              className="w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded-full transition-colors flex items-center justify-center"
-              aria-label="Perfil"
-            >
-              <User className="w-5 h-5 text-gray-700" />
-            </button>
+            <UserMenu />
           </div>
         </div>
       </div>
