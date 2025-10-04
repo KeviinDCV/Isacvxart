@@ -39,7 +39,7 @@ export default function Hero() {
             &ldquo;Painting is another way of breathing.&rdquo;
           </h1>
           <p className="text-xl text-gray-600 mb-8">
-          In a simple stroke, a universe can fit. ˶ᵔ ᵕ ᵔ˶
+            In a simple stroke, a universe can fit. ˶ᵔ ᵕ ᵔ˶
           </p>
 
           {/* Barra de búsqueda */}
