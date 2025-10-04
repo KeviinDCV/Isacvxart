@@ -38,7 +38,7 @@ export default function Header() {
           {/* Logo - Izquierda */}
           <Link href="/" className="flex items-center gap-2 flex-1">
             <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">I</span>
+              <span className="text-white font-bold text-xl">❤</span>
             </div>
             <span className="text-xl font-bold text-gray-900">Isacvxart</span>
           </Link>
