@@ -2,94 +2,24 @@
 
 import ProductCard from './ProductCard'
 import { useSearch } from '@/context/SearchContext'
-import { useMemo } from 'react'
-
-const products = [
-  {
-    id: '1',
-    name: 'Paisaje Abstracto Digital',
-    price: 29.90,
-    rating: 5.0,
-    reviews: 1.2,
-    image: '/products/product1.jpg',
-    category: 'Digital',
-  },
-  {
-    id: '2',
-    name: 'Retrato Minimalista',
-    price: 12.00,
-    rating: 5.0,
-    reviews: 1.2,
-    image: '/products/product2.jpg',
-    category: 'Ilustración',
-  },
-  {
-    id: '3',
-    name: 'Arte Conceptual Moderno',
-    price: 29.90,
-    rating: 4.4,
-    reviews: 1,
-    image: '/products/product3.jpg',
-    category: 'Digital',
-  },
-  {
-    id: '4',
-    name: 'Ilustración Botánica',
-    price: 50.00,
-    rating: 4.8,
-    reviews: 1.2,
-    image: '/products/product4.jpg',
-    category: 'Ilustración',
-  },
-  {
-    id: '5',
-    name: 'Composición Geométrica',
-    price: 9.90,
-    rating: 5.0,
-    reviews: 1.2,
-    image: '/products/product5.jpg',
-    category: 'Abstracto',
-  },
-  {
-    id: '6',
-    name: 'Arte Digital Premium',
-    price: 34.10,
-    rating: 4.8,
-    reviews: 2.4,
-    image: '/products/product6.jpg',
-    category: 'Digital',
-  },
-  {
-    id: '7',
-    name: 'Ilustración Narrativa',
-    price: 45.00,
-    rating: 4.9,
-    reviews: 0.8,
-    image: '/products/product7.jpg',
-    category: 'Ilustración',
-  },
-  {
-    id: '8',
-    name: 'Serie Abstracta Vol. 1',
-    price: 19.90,
-    rating: 4.7,
-    reviews: 1.5,
-    image: '/products/product8.jpg',
-    category: 'Abstracto',
-  },
-  {
-    id: '9',
-    name: 'Retrato Expresivo',
-    price: 39.00,
-    rating: 5.0,
-    reviews: 2.1,
-    image: '/products/product9.jpg',
-    category: 'Retrato',
-  },
-]
+import { useMemo, useEffect, useState } from 'react'
+import { getProducts, type Product } from '@/lib/products'
 
 export default function ProductGrid() {
   const { searchTerm } = useSearch()
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadProducts()
+  }, [])
+
+  const loadProducts = async () => {
+    setLoading(true)
+    const data = await getProducts()
+    setProducts(data)
+    setLoading(false)
+  }
 
   const filteredProducts = useMemo(() => {
     if (!searchTerm.trim()) return products
@@ -100,7 +30,7 @@ export default function ProductGrid() {
         product.name.toLowerCase().includes(term) ||
         product.category.toLowerCase().includes(term)
     )
-  }, [searchTerm])
+  }, [searchTerm, products])
 
   return (
     <div>
@@ -123,20 +53,34 @@ export default function ProductGrid() {
         </select>
       </div>
 
-      {filteredProducts.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-16">
+          <div className="w-16 h-16 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando productos...</p>
+        </div>
+      ) : filteredProducts.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-6xl mb-4">🔍</div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">
             No se encontraron resultados
           </h3>
           <p className="text-gray-600">
-            Intenta con otros términos de búsqueda
+            {searchTerm ? 'Intenta con otros términos de búsqueda' : 'No hay productos disponibles'}
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
           {filteredProducts.map((product) => (
-            <ProductCard key={product.id} {...product} />
+            <ProductCard 
+              key={product.id} 
+              id={product.id}
+              name={product.name}
+              price={product.price}
+              rating={product.rating}
+              reviews={product.reviews}
+              image={product.image_url || ''}
+              category={product.category}
+            />
           ))}
         </div>
       )}

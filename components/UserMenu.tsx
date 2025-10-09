@@ -1,6 +1,6 @@
 'use client'
 
-import { User, LogOut, ShoppingBag, Settings } from 'lucide-react'
+import { User, LogOut, ShoppingBag, Settings, Shield } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import AuthModal from './AuthModal'
@@ -11,7 +11,7 @@ export default function UserMenu() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const { user, signOut, loading } = useAuth()
+  const { user, isAdmin, signOut, loading } = useAuth()
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -104,6 +104,16 @@ export default function UserMenu() {
 
             {/* Menu items */}
             <div className="py-2">
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors bg-gray-100 border-b border-gray-200"
+                >
+                  <Shield className="w-4 h-4 text-gray-900" />
+                  <span className="text-sm text-gray-900 font-semibold">Panel de Admin</span>
+                </Link>
+              )}
               <Link
                 href="/perfil"
                 onClick={() => setIsOpen(false)}
