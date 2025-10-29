@@ -2,6 +2,7 @@
 
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react'
 import { useCart } from '@/context/CartContext'
+import { formatPriceCOP } from '@/lib/utils'
 import { useEffect, useRef } from 'react'
 
 interface CartDropdownProps {
@@ -72,7 +73,7 @@ export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
                     {item.name}
                   </h4>
                   <p className="text-xs text-gray-500 mb-2">{item.category}</p>
-                  <p className="text-lg font-bold text-gray-900">${item.price}</p>
+                  <p className="text-lg font-bold text-gray-900">{formatPriceCOP(item.price)}</p>
                 </div>
 
                 {/* Cantidad */}
@@ -112,7 +113,7 @@ export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
         <div className="p-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
           <div className="flex items-center justify-between mb-4">
             <span className="text-gray-600 font-medium">Total:</span>
-            <span className="text-2xl font-bold text-gray-900">${total.toFixed(2)}</span>
+            <span className="text-2xl font-bold text-gray-900">{formatPriceCOP(total)}</span>
           </div>
           <button className="w-full py-3 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition-colors">
             Proceder al Pago

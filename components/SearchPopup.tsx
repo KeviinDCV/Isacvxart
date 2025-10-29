@@ -3,21 +3,32 @@
 import { Search } from 'lucide-react'
 import { useState, FormEvent } from 'react'
 import { useSearch } from '@/context/SearchContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 
 export default function SearchPopup() {
   const [localSearch, setLocalSearch] = useState('')
   const [isVisible, setIsVisible] = useState(false)
   const { setSearchTerm } = useSearch()
   const router = useRouter()
+  const pathname = usePathname()
 
   const handleSearch = (e: FormEvent) => {
     e.preventDefault()
     if (localSearch.trim()) {
       setSearchTerm(localSearch)
-      router.push('/tienda')
       setIsVisible(false)
       setLocalSearch('')
+      
+      // Si no estamos en inicio, redirigir
+      if (pathname !== '/') {
+        router.push('/')
+      } else {
+        // Si estamos en inicio, hacer scroll a los productos
+        const productsSection = document.getElementById('products-section')
+        if (productsSection) {
+          productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }
     }
   }
 

@@ -3,6 +3,7 @@
 import { X, Star, ShoppingCart } from 'lucide-react'
 import { useEffect } from 'react'
 import { useCart } from '@/context/CartContext'
+import { formatPriceCOP } from '@/lib/utils'
 import type { Product } from '@/context/CartContext'
 
 interface ProductModalProps {
@@ -88,7 +89,7 @@ export default function ProductModal({ isOpen, onClose, product }: ProductModalP
 
             {/* Precio */}
             <div className="mb-8">
-              <span className="text-4xl font-bold text-gray-900">${product.price}</span>
+              <span className="text-4xl font-bold text-gray-900">{formatPriceCOP(product.price)}</span>
             </div>
 
             {/* Descripción */}

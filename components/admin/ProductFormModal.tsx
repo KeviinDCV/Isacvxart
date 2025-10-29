@@ -1,8 +1,9 @@
 'use client'
 
-import { X } from 'lucide-react'
-import { useEffect, useState, FormEvent } from 'react'
+import { X, Upload, Image as ImageIcon } from 'lucide-react'
+import { useEffect, useState, FormEvent, ChangeEvent } from 'react'
 import { createProduct, updateProduct, type Product, type ProductFormData } from '@/lib/products'
+import { uploadProductImage } from '@/lib/supabase'
 
 interface ProductFormModalProps {
   isOpen: boolean
@@ -13,6 +14,9 @@ interface ProductFormModalProps {
 export default function ProductFormModal({ isOpen, onClose, product }: ProductFormModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string>('')
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     price: 0,
@@ -34,6 +38,7 @@ export default function ProductFormModal({ isOpen, onClose, product }: ProductFo
         stock: product.stock,
         active: product.active,
       })
+      setPreviewUrl(product.image_url || '')
     } else {
       setFormData({
         name: '',
@@ -44,8 +49,10 @@ export default function ProductFormModal({ isOpen, onClose, product }: ProductFo
         stock: 0,
         active: true,
       })
+      setPreviewUrl('')
     }
     setError('')
+    setSelectedFile(null)
   }, [product, isOpen])
 
   useEffect(() => {
@@ -59,22 +66,56 @@ export default function ProductFormModal({ isOpen, onClose, product }: ProductFo
     }
   }, [isOpen])
 
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        setError('Por favor selecciona una imagen válida')
+        return
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setError('La imagen no debe superar 5MB')
+        return
+      }
+      setSelectedFile(file)
+      setPreviewUrl(URL.createObjectURL(file))
+      setError('')
+    }
+  }
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
 
     try {
+      let imageUrl = formData.image_url
+
+      // Si hay una nueva imagen, subirla primero
+      if (selectedFile) {
+        setUploading(true)
+        const uploadedUrl = await uploadProductImage(selectedFile)
+        setUploading(false)
+        
+        if (!uploadedUrl) {
+          throw new Error('Error al subir la imagen')
+        }
+        imageUrl = uploadedUrl
+      }
+
+      const dataToSave = { ...formData, image_url: imageUrl }
+
       if (product) {
-        await updateProduct(product.id, formData)
+        await updateProduct(product.id, dataToSave)
       } else {
-        await createProduct(formData)
+        await createProduct(dataToSave)
       }
       onClose()
     } catch (err: any) {
       setError(err.message || 'Error al guardar el producto')
     } finally {
       setLoading(false)
+      setUploading(false)
     }
   }
 
@@ -134,7 +175,7 @@ export default function ProductFormModal({ isOpen, onClose, product }: ProductFo
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Precio ($) *
+                  Precio (COP) *
                 </label>
                 <input
                   type="number"
@@ -197,19 +238,65 @@ export default function ProductFormModal({ isOpen, onClose, product }: ProductFo
               />
             </div>
 
-            {/* URL de imagen */}
+            {/* Subir imagen */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                URL de Imagen
+                Imagen del Producto
               </label>
-              <input
-                type="url"
-                value={formData.image_url}
-                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900"
-                placeholder="https://ejemplo.com/imagen.jpg"
-              />
-              <p className="text-xs text-gray-500 mt-1">Deja en blanco para usar el emoji por defecto 🎨</p>
+              
+              {/* Preview de imagen */}
+              {previewUrl && (
+                <div className="mb-3 relative w-full h-48 bg-gray-100 rounded-xl overflow-hidden">
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPreviewUrl('')
+                      setSelectedFile(null)
+                      setFormData({ ...formData, image_url: '' })
+                    }}
+                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
+              {/* Input de archivo */}
+              <div className="relative">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <label
+                  htmlFor="image-upload"
+                  className="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl hover:border-gray-400 transition-colors cursor-pointer"
+                >
+                  {uploading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
+                      <span className="text-sm text-gray-600">Subiendo...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-5 h-5 text-gray-400" />
+                      <span className="text-sm text-gray-600">
+                        {selectedFile ? selectedFile.name : 'Seleccionar imagen (máx. 5MB)'}
+                      </span>
+                    </>
+                  )}
+                </label>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {previewUrl ? 'Haz clic en la X para quitar la imagen' : 'Sube una imagen JPG, PNG o WebP'}
+              </p>
             </div>
 
             {/* Estado activo */}

@@ -3,10 +3,11 @@
 import { useAuth } from '@/context/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Plus, Edit, Trash2, Eye, EyeOff, LogOut } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react'
 import { getAllProducts, deleteProduct, toggleProductActive, type Product } from '@/lib/products'
+import { formatPriceCOP } from '@/lib/utils'
 import ProductFormModal from '@/components/admin/ProductFormModal'
-import Link from 'next/link'
+import Header from '@/components/Header'
 
 export default function AdminPage() {
   const { user, isAdmin, loading, signOut } = useAuth()
@@ -86,32 +87,8 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header del Admin */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Link href="/" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">♰</span>
-                </div>
-                <span className="text-xl font-bold text-gray-900">Isacvxart</span>
-              </Link>
-              <span className="text-sm text-gray-500">/ Panel de Administración</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">{user?.email}</span>
-              <button
-                onClick={signOut}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                Salir
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Header unificado en modo admin */}
+      <Header isAdminMode={true} showAdminBreadcrumb={true} />
 
       {/* Contenido Principal */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -197,7 +174,7 @@ export default function AdminPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${product.price.toFixed(2)}
+                        {formatPriceCOP(product.price)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {product.stock} unidades

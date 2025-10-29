@@ -4,17 +4,19 @@ import { Search } from 'lucide-react'
 import Image from 'next/image'
 import { useState, FormEvent } from 'react'
 import { useSearch } from '@/context/SearchContext'
-import { useRouter } from 'next/navigation'
 
 export default function Hero() {
   const [localSearch, setLocalSearch] = useState('')
   const { setSearchTerm } = useSearch()
-  const router = useRouter()
 
   const handleSearch = (e: FormEvent) => {
     e.preventDefault()
     setSearchTerm(localSearch)
-    router.push('/tienda')
+    // Scroll suave hacia los productos
+    const productsSection = document.getElementById('products-section')
+    if (productsSection) {
+      productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
   }
 
   return (

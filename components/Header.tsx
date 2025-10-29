@@ -5,14 +5,21 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { useCart } from '@/context/CartContext'
+import { useAuth } from '@/context/AuthContext'
 import CartDropdown from './CartDropdown'
 import SearchPopup from './SearchPopup'
 import UserMenu from './UserMenu'
 
-export default function Header() {
+interface HeaderProps {
+  isAdminMode?: boolean
+  showAdminBreadcrumb?: boolean
+}
+
+export default function Header({ isAdminMode = false, showAdminBreadcrumb = false }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const { items } = useCart()
+  const { isAdmin } = useAuth()
   const pathname = usePathname()
 
   useEffect(() => {
@@ -38,12 +45,17 @@ export default function Header() {
       }`}>
         <div className="flex items-center justify-between h-16 px-6">
           {/* Logo - Izquierda */}
-          <Link href="/" className="flex items-center gap-2 flex-1">
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">♰</span>
-            </div>
-            <span className="text-xl font-bold text-gray-900">Isacvxart</span>
-          </Link>
+          <div className="flex items-center gap-2 flex-1">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xl">♰</span>
+              </div>
+              <span className="text-xl font-bold text-gray-900">Isacvxart</span>
+            </Link>
+            {showAdminBreadcrumb && (
+              <span className="text-sm text-gray-500">/ Panel de Administración</span>
+            )}
+          </div>
 
           {/* Navegación - Centrada */}
           <nav className="hidden md:flex items-center gap-8 flex-1 justify-center">
@@ -57,36 +69,40 @@ export default function Header() {
             >
               Inicio
             </Link>
-            <Link 
-              href="/tienda" 
-              className={`transition-colors ${
-                isActive('/tienda') 
-                  ? 'text-gray-900 font-bold' 
-                  : 'text-gray-600 hover:text-gray-900 font-medium'
-              }`}
-            >
-              Tienda
-            </Link>
+            {isAdmin && (
+              <Link 
+                href="/admin" 
+                className={`transition-colors ${
+                  isActive('/admin') 
+                    ? 'text-gray-900 font-bold' 
+                    : 'text-gray-600 hover:text-gray-900 font-medium'
+                }`}
+              >
+                Admin
+              </Link>
+            )}
           </nav>
 
           {/* Acciones - Derecha */}
           <div className="flex items-center gap-4 flex-1 justify-end">
-            <SearchPopup />
-            <div className="relative">
-              <button 
-                onClick={() => setIsCartOpen(!isCartOpen)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative"
-                aria-label="Carrito"
-              >
-                <ShoppingCart className="w-5 h-5 text-gray-600" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
-                    {totalItems}
-                  </span>
-                )}
-              </button>
-              <CartDropdown isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-            </div>
+            {!isAdminMode && <SearchPopup />}
+            {!isAdminMode && (
+              <div className="relative">
+                <button 
+                  onClick={() => setIsCartOpen(!isCartOpen)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative"
+                  aria-label="Carrito"
+                >
+                  <ShoppingCart className="w-5 h-5 text-gray-600" />
+                  {totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                      {totalItems}
+                    </span>
+                  )}
+                </button>
+                <CartDropdown isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+              </div>
+            )}
             <UserMenu />
           </div>
         </div>

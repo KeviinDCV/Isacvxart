@@ -11,6 +11,7 @@ export interface Product {
   image_url?: string
   stock: number
   active: boolean
+  discount_price?: number | null
   created_at?: string
   updated_at?: string
 }
@@ -138,6 +139,26 @@ export async function toggleProductActive(id: string, active: boolean) {
 
   if (error) {
     console.error('Error toggling product active:', error)
+    throw error
+  }
+
+  return data as Product
+}
+
+// Actualizar precio con descuento (admin)
+export async function updateProductDiscount(id: string, discountPrice: number | null) {
+  const { data, error } = await supabase
+    .from('products')
+    .update({ 
+      discount_price: discountPrice,
+      updated_at: new Date().toISOString() 
+    })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error updating product discount:', error)
     throw error
   }
 
